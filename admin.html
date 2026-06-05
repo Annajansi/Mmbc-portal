@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Moon Millennium — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F7F6F1;--card:#fff;--ink:#18181B;--ink-soft:#55554F;--ink-faint:#9A9A92;--line:#E7E5DD;--accent:#22223F;--gold:#B89154;--sans:'Hanken Grotesk',sans-serif;--serif:'Fraunces',serif;--r:14px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 80px}
+  header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand .mark{width:38px;height:38px;border-radius:11px;background:var(--accent);display:grid;place-items:center}
+  .brand .mark svg{width:21px;height:21px}
+  .brand b{font-family:var(--serif);font-weight:500;font-size:18px}
+  .brand span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);display:block}
+  .out{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 16px;cursor:pointer}
+  .out:hover{border-color:var(--ink-faint)}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px}
+  .tabs button{font-family:var(--sans);font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer;transition:.15s}
+  .tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .panel{display:none}.panel.active{display:block}
+  .grid2{display:grid;grid-template-columns:1fr 1.4fr;gap:24px;align-items:start}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+  .box h3{font-family:var(--serif);font-weight:500;font-size:17px;margin-bottom:4px}
+  .box .hint{font-size:12px;color:var(--ink-faint);margin-bottom:16px}
+  label{font-size:12px;font-weight:600;display:block;margin:12px 0 6px}
+  input,select,textarea{width:100%;font-family:var(--sans);font-size:14px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper);outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff}
+  textarea{min-height:74px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .save{margin-top:16px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:11px;padding:12px;font-family:var(--sans);font-weight:600;font-size:14px;cursor:pointer}
+  .save:hover{box-shadow:0 10px 22px -10px rgba(34,34,63,.5)}
+  .save:disabled{opacity:.6}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;padding:0 8px 10px}
+  td{padding:11px 8px;border-top:1px solid var(--line);vertical-align:top}
+  .tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(34,34,63,.08);color:var(--accent);white-space:nowrap}
+  .tag.gold{background:rgba(184,145,84,.15);color:#8a6a2f}
+  .muted{color:var(--ink-faint)}
+  .del{background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px;font-weight:600}
+  .note{font-size:12.5px;color:var(--ink-soft);background:#fbf6ec;border:1px solid #ecdcc0;border-radius:10px;padding:11px 13px;margin-top:14px;line-height:1.5}
+  /* login */
+  .login{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .login .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:38px;max-width:360px;width:100%;text-align:center}
+  .login .mark{width:48px;height:48px;border-radius:13px;background:var(--accent);display:grid;place-items:center;margin:0 auto 20px}
+  .login .mark svg{width:26px;height:26px}
+  .login h2{font-family:var(--serif);font-weight:400;font-size:24px}
+  .login p{font-size:13.5px;color:var(--ink-soft);margin:8px 0 22px;line-height:1.5}
+  .login input{margin-bottom:14px;text-align:center}
+  .login .save{margin-top:0}
+  .lmsg{font-size:13px;margin-top:14px;display:none}
+  .lmsg.show{display:block}.lmsg.ok{color:#3a6a4a}.lmsg.err{color:#c0392b}
+  #app{display:none}
+  @media(max-width:760px){.grid2,.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="login" id="login" style="display:none">
+  <div class="card">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M20.5 14.5A8.5 8.5 0 1 1 11 4a6.5 6.5 0 0 0 9.5 10.5Z" fill="#fff"/></svg></div>
+    <h2>Admin sign-in</h2>
+    <p>Moon Millennium team only. We'll email you a secure sign-in link.</p>
+    <input id="email" type="email" placeholder="you@moonmillennium.in">
+    <button class="save" id="lbtn" onclick="sendLink()">Send sign-in link →</button>
+    <div class="lmsg" id="lmsg"></div>
+  </div>
+</div>
+
+<div id="app">
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M20.5 14.5A8.5 8.5 0 1 1 11 4a6.5 6.5 0 0 0 9.5 10.5Z" fill="#fff"/></svg></div><div><b>Moon Millennium</b><span>Admin Console</span></div></div>
+    <button class="out" onclick="logout()">Sign out</button>
+  </header>
+
+  <div class="tabs">
+    <button class="active" onclick="tab('clients')">Clients</button>
+    <button onclick="tab('projects')">Projects</button>
+    <button onclick="tab('deliverables')">Deliverables</button>
+    <button onclick="tab('activity')">Activity</button>
+    <button onclick="tab('portfolio')">Portfolio</button>
+    <button onclick="tab('quotes')">Quotes</button>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="panel active" id="p-clients">
+    <div class="grid2">
+      <div class="box">
+        <h3>Add a client</h3><div class="hint">Creates the company and emails an invite link so they get linked automatically on first sign-in.</div>
+        <label>Company / brand</label><input id="c_company" placeholder="Verde Botanicals">
+        <div class="row2"><div><label>Contact name</label><input id="c_contact" placeholder="Anitha Raman"></div><div><label>Initials</label><input id="c_initials" placeholder="VB" maxlength="3"></div></div>
+        <label>Client login email</label><input id="c_email" type="email" placeholder="anitha@verde.co">
+        <button class="save" onclick="addClient()">Create client &amp; invite</button>
+        <div class="note">The client then opens the portal, enters this email, and clicks the magic link — they're linked to this brand automatically.</div>
+      </div>
+      <div class="box"><h3>Clients</h3><div class="hint">Everyone you're working with.</div><table><thead><tr><th>Company</th><th>Contact</th><th></th></tr></thead><tbody id="t-clients"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="panel" id="p-projects">
+    <div class="grid2">
+      <div class="box">
+        <h3>Add a project</h3><div class="hint">Shows up on the client's Overview as an engagement.</div>
+        <label>Client</label><select id="pr_client"></select>
+        <label>Project name</label><input id="pr_name" placeholder="Identity refresh">
+        <div class="row2"><div><label>Service</label><select id="pr_service"><option>Brand Strategy</option><option>Identity &amp; Logo</option><option>Packaging</option><option>Digital &amp; Web</option><option>Social &amp; Content</option><option>Brand Guidelines</option></select></div>
+        <div><label>Status</label><select id="pr_status"><option value="active">Active</option><option value="review">In review</option><option value="complete">Complete</option></select></div></div>
+        <label>Next review date</label><input id="pr_review" type="date">
+        <button class="save" onclick="addProject()">Add project</button>
+      </div>
+      <div class="box"><h3>Projects</h3><div class="hint">Across all clients.</div><table><thead><tr><th>Client</th><th>Project</th><th>Status</th><th></th></tr></thead><tbody id="t-projects"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- DELIVERABLES -->
+  <div class="panel" id="p-deliverables">
+    <div class="grid2">
+      <div class="box">
+        <h3>Add a deliverable</h3><div class="hint">A file link the client can open and review.</div>
+        <label>Client</label><select id="d_client"></select>
+        <label>Title</label><input id="d_title" placeholder="Logo system — Round 2">
+        <label>File link (Drive, Dropbox, Figma, etc.)</label><input id="d_url" placeholder="https://...">
+        <label style="display:flex;align-items:center;gap:8px;margin-top:14px"><input type="checkbox" id="d_await" checked style="width:auto"> Mark as awaiting client review</label>
+        <button class="save" onclick="addDeliverable()">Add deliverable</button>
+      </div>
+      <div class="box"><h3>Deliverables</h3><div class="hint">Across all clients.</div><table><thead><tr><th>Client</th><th>Title</th><th>State</th><th></th></tr></thead><tbody id="t-deliverables"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div class="panel" id="p-activity">
+    <div class="grid2">
+      <div class="box">
+        <h3>Post an update</h3><div class="hint">Appears in the client's Recent activity feed.</div>
+        <label>Client</label><select id="a_client"></select>
+        <label>Title</label><input id="a_title" placeholder="Packaging proofs uploaded">
+        <label>Detail</label><textarea id="a_detail" placeholder="2 label variants ready for your review"></textarea>
+        <button class="save" onclick="addActivity()">Post update</button>
+      </div>
+      <div class="box"><h3>Activity</h3><div class="hint">Most recent first.</div><table><thead><tr><th>Client</th><th>Update</th><th></th></tr></thead><tbody id="t-activity"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO -->
+  <div class="panel" id="p-portfolio">
+    <div class="grid2">
+      <div class="box">
+        <h3>Add portfolio work</h3><div class="hint">Shown to every client in the Portfolio tab.</div>
+        <label>Project name</label><input id="w_name" placeholder="Verde Botanicals">
+        <div class="row2"><div><label>Thumbnail label</label><input id="w_label" placeholder="Verdè"></div>
+        <div><label>Category</label><select id="w_cat"><option value="identity">Identity</option><option value="packaging">Packaging</option><option value="digital">Digital</option><option value="campaign">Campaign</option></select></div></div>
+        <label>Year / caption</label><input id="w_year" placeholder="2025 · Packaging">
+        <button class="save" onclick="addWork()">Add to portfolio</button>
+      </div>
+      <div class="box"><h3>Portfolio</h3><div class="hint">Public to all clients.</div><table><thead><tr><th>Name</th><th>Category</th><th></th></tr></thead><tbody id="t-portfolio"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- QUOTES -->
+  <div class="panel" id="p-quotes">
+    <div class="box"><h3>Quote requests</h3><div class="hint">Submitted from the portal.</div>
+      <table><thead><tr><th>When</th><th>From</th><th>Service</th><th>Details</th></tr></thead><tbody id="t-quotes"></tbody></table></div>
+  </div>
+</div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  let CLIENTS=[];
+
+  (async function(){
+    const { data:{session} }=await db.auth.getSession();
+    if(!session){ showLogin(); return; }
+    const isAdmin=await db.rpc('is_admin').then(r=>r.data).catch(()=>false);
+    if(!isAdmin){ await db.auth.signOut(); showLogin('That account is not an admin. Ask to be added to the admins table.'); return; }
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='block';
+    await refreshAll();
+  })();
+
+  function showLogin(msg){
+    document.getElementById('app').style.display='none';
+    const l=document.getElementById('login'); l.style.display='grid';
+    if(msg){const m=document.getElementById('lmsg');m.className='lmsg err show';m.textContent=msg;}
+  }
+  async function sendLink(){
+    const email=document.getElementById('email').value.trim(); const m=document.getElementById('lmsg'); const b=document.getElementById('lbtn');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){m.className='lmsg err show';m.textContent='Enter a valid email.';return;}
+    b.disabled=true;b.textContent='Sending…';
+    const { error }=await db.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.href}});
+    if(error){m.className='lmsg err show';m.textContent=error.message;b.disabled=false;b.textContent='Send sign-in link →';}
+    else{m.className='lmsg ok show';m.textContent='Check your inbox for the sign-in link.';b.textContent='Link sent';}
+  }
+  async function logout(){ await db.auth.signOut(); showLogin(); }
+
+  function tab(name){
+    document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('active',b.textContent.toLowerCase().startsWith(name.slice(0,5))));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('p-'+name).classList.add('active');
+  }
+
+  async function refreshAll(){
+    const { data:clients=[] }=await db.from('clients').select('*').order('created_at',{ascending:false});
+    CLIENTS=clients;
+    // fill client dropdowns
+    const opts='<option value="">Select a client…</option>'+clients.map(c=>`<option value="${c.id}">${esc(c.company)}</option>`).join('');
+    ['pr_client','d_client','a_client'].forEach(id=>document.getElementById(id).innerHTML=opts);
+    renderClients(clients);
+    await Promise.all([renderProjects(),renderDeliverables(),renderActivity(),renderPortfolioAdmin(),renderQuotes()]);
+  }
+
+  function nameOf(id){const c=CLIENTS.find(x=>x.id===id);return c?c.company:'—';}
+
+  // CLIENTS
+  function renderClients(clients){
+    document.getElementById('t-clients').innerHTML=clients.length?clients.map(c=>`
+      <tr><td><b>${esc(c.company)}</b></td><td class="muted">${esc(c.contact_name||'')}</td>
+      <td style="text-align:right"><button class="del" onclick="removeRow('clients','${c.id}')">remove</button></td></tr>`).join('')
+      :'<tr><td colspan="3" class="muted">No clients yet.</td></tr>';
+  }
+  async function addClient(){
+    const company=v('c_company'); if(!company)return alert('Company is required');
+    const email=v('c_email').toLowerCase();
+    const { data:client,error }=await db.from('clients').insert({company,contact_name:v('c_contact'),initials:v('c_initials')}).select().single();
+    if(error)return alert(error.message);
+    if(email){ const { error:e2 }=await db.from('client_invites').insert({email,client_id:client.id}); if(e2)alert('Client created, but invite failed: '+e2.message); }
+    ['c_company','c_contact','c_initials','c_email'].forEach(clear);
+    refreshAll();
+  }
+
+  // PROJECTS
+  async function renderProjects(){
+    const { data:rows=[] }=await db.from('projects').select('*').order('updated_at',{ascending:false});
+    const lbl={active:'Active',review:'In review',complete:'Complete'};
+    document.getElementById('t-projects').innerHTML=rows.length?rows.map(r=>`
+      <tr><td>${esc(nameOf(r.client_id))}</td><td><b>${esc(r.name)}</b><br><span class="muted">${esc(r.service||'')}</span></td>
+      <td><span class="tag ${r.status==='complete'?'gold':''}">${lbl[r.status]||r.status}</span></td>
+      <td style="text-align:right"><button class="del" onclick="removeRow('projects','${r.id}')">remove</button></td></tr>`).join('')
+      :'<tr><td colspan="4" class="muted">No projects yet.</td></tr>';
+  }
+  async function addProject(){
+    const client_id=v('pr_client'); if(!client_id)return alert('Pick a client');
+    const name=v('pr_name'); if(!name)return alert('Project name required');
+    const { error }=await db.from('projects').insert({client_id,name,service:v('pr_service'),status:v('pr_status'),next_review:v('pr_review')||null});
+    if(error)return alert(error.message);
+    ['pr_name','pr_review'].forEach(clear); renderProjects();
+  }
+
+  // DELIVERABLES
+  async function renderDeliverables(){
+    const { data:rows=[] }=await db.from('deliverables').select('*').order('created_at',{ascending:false});
+    document.getElementById('t-deliverables').innerHTML=rows.length?rows.map(r=>`
+      <tr><td>${esc(nameOf(r.client_id))}</td><td><b>${esc(r.title)}</b>${r.file_url?`<br><a href="${esc(r.file_url)}" target="_blank" class="muted">link</a>`:''}</td>
+      <td>${r.awaiting_review?'<span class="tag gold">Awaiting</span>':'<span class="muted">Reviewed</span>'}</td>
+      <td style="text-align:right"><button class="del" onclick="removeRow('deliverables','${r.id}')">remove</button></td></tr>`).join('')
+      :'<tr><td colspan="4" class="muted">No deliverables yet.</td></tr>';
+  }
+  async function addDeliverable(){
+    const client_id=v('d_client'); if(!client_id)return alert('Pick a client');
+    const title=v('d_title'); if(!title)return alert('Title required');
+    const { error }=await db.from('deliverables').insert({client_id,title,file_url:v('d_url')||null,awaiting_review:document.getElementById('d_await').checked});
+    if(error)return alert(error.message);
+    ['d_title','d_url'].forEach(clear); renderDeliverables();
+  }
+
+  // ACTIVITY
+  async function renderActivity(){
+    const { data:rows=[] }=await db.from('activity').select('*').order('created_at',{ascending:false}).limit(40);
+    document.getElementById('t-activity').innerHTML=rows.length?rows.map(r=>`
+      <tr><td>${esc(nameOf(r.client_id))}</td><td><b>${esc(r.title)}</b><br><span class="muted">${esc(r.detail||'')}</span></td>
+      <td style="text-align:right"><button class="del" onclick="removeRow('activity','${r.id}')">remove</button></td></tr>`).join('')
+      :'<tr><td colspan="3" class="muted">No updates yet.</td></tr>';
+  }
+  async function addActivity(){
+    const client_id=v('a_client'); if(!client_id)return alert('Pick a client');
+    const title=v('a_title'); if(!title)return alert('Title required');
+    const { error }=await db.from('activity').insert({client_id,title,detail:v('a_detail')});
+    if(error)return alert(error.message);
+    ['a_title','a_detail'].forEach(clear); renderActivity();
+  }
+
+  // PORTFOLIO
+  async function renderPortfolioAdmin(){
+    const { data:rows=[] }=await db.from('portfolio').select('*').order('sort',{ascending:true});
+    document.getElementById('t-portfolio').innerHTML=rows.length?rows.map(r=>`
+      <tr><td><b>${esc(r.name)}</b></td><td><span class="tag">${esc(r.category)}</span></td>
+      <td style="text-align:right"><button class="del" onclick="removeRow('portfolio','${r.id}')">remove</button></td></tr>`).join('')
+      :'<tr><td colspan="3" class="muted">No work yet.</td></tr>';
+  }
+  async function addWork(){
+    const name=v('w_name'); if(!name)return alert('Name required');
+    const { error }=await db.from('portfolio').insert({name,label:v('w_label'),category:v('w_cat'),year_text:v('w_year')});
+    if(error)return alert(error.message);
+    ['w_name','w_label','w_year'].forEach(clear); renderPortfolioAdmin();
+  }
+
+  // QUOTES
+  async function renderQuotes(){
+    const { data:rows=[] }=await db.from('quotes').select('*').order('created_at',{ascending:false});
+    document.getElementById('t-quotes').innerHTML=rows.length?rows.map(r=>`
+      <tr><td class="muted">${new Date(r.created_at).toLocaleDateString('en-IN',{month:'short',day:'numeric'})}</td>
+      <td><b>${esc(r.name||'')}</b><br><span class="muted">${esc(r.email||'')}${r.company?' · '+esc(r.company):''}</span></td>
+      <td><span class="tag">${esc(r.service||'')}</span>${r.budget?`<br><span class="muted">${esc(r.budget)}</span>`:''}</td>
+      <td style="max-width:280px">${esc(r.message||'')}</td></tr>`).join('')
+      :'<tr><td colspan="4" class="muted">No requests yet.</td></tr>';
+  }
+
+  async function removeRow(table,id){ if(!confirm('Remove this item?'))return; const { error }=await db.from(table).delete().eq('id',id); if(error)return alert(error.message); refreshAll(); }
+
+  function v(id){return document.getElementById(id).value.trim();}
+  function clear(id){document.getElementById(id).value='';}
+  function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+</script>
+</body>
+</html>

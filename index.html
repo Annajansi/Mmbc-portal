@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Moon Millennium — Client Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F7F6F1;--paper-2:#FBFAF6;--card:#FFFFFF;--ink:#18181B;--ink-soft:#55554F;--ink-faint:#9A9A92;--line:#E7E5DD;--line-soft:#EFEDE6;--accent:#22223F;--gold:#B89154;--shadow:0 1px 2px rgba(24,24,27,.04),0 8px 28px -12px rgba(24,24,27,.10);--shadow-lg:0 1px 2px rgba(24,24,27,.05),0 24px 60px -24px rgba(24,24,27,.18);--r:18px;--sans:'Hanken Grotesk',-apple-system,sans-serif;--serif:'Fraunces',Georgia,serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;position:relative}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .auth{display:flex;min-height:100vh}
+  .auth-brand{flex:1;background:linear-gradient(150deg,#1d1d38 0%,#2a2a52 55%,#37376a 100%);color:#fff;position:relative;overflow:hidden;padding:56px;display:flex;flex-direction:column;justify-content:space-between}
+  .auth-brand .moon{position:absolute;right:-90px;top:50%;transform:translateY(-50%);width:420px;height:420px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.16),rgba(255,255,255,.02) 60%,transparent);box-shadow:inset -50px -30px 90px rgba(0,0,0,.3)}
+  .auth-brand .moon::after{content:"";position:absolute;right:90px;top:0;width:380px;height:380px;border-radius:50%;box-shadow:30px 22px 0 0 rgba(29,29,56,.6)}
+  .auth-brand .top{display:flex;align-items:center;gap:12px;position:relative}
+  .auth-brand .top .mark{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center}
+  .auth-brand .top .mark svg{width:23px;height:23px}
+  .auth-brand .top b{font-family:var(--serif);font-weight:500;font-size:19px;letter-spacing:-.01em}
+  .auth-brand .pitch{position:relative;max-width:420px}
+  .auth-brand .pitch .eye{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:18px}
+  .auth-brand .pitch h1{font-family:var(--serif);font-weight:300;font-size:42px;line-height:1.1;letter-spacing:-.02em}
+  .auth-brand .pitch h1 em{font-style:italic}
+  .auth-brand .pitch p{color:rgba(255,255,255,.66);margin-top:18px;font-size:15px;line-height:1.65}
+  .auth-brand .foot{font-size:12.5px;color:rgba(255,255,255,.5);position:relative}
+  .auth-form{width:480px;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:40px;background:var(--paper)}
+  .auth-box{width:100%;max-width:340px}
+  .auth-box h2{font-family:var(--serif);font-weight:400;font-size:30px;letter-spacing:-.01em}
+  .auth-box .sub{color:var(--ink-soft);font-size:14px;margin-top:8px;line-height:1.5;margin-bottom:28px}
+  .auth-box label{font-size:12.5px;font-weight:600;display:block;margin-bottom:7px}
+  .auth-box input{width:100%;font-family:var(--sans);font-size:14.5px;border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:#fff;outline:none;transition:.18s;margin-bottom:16px}
+  .auth-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,34,63,.08)}
+  .auth-box .go{width:100%;background:var(--accent);color:#fff;font-family:var(--sans);font-weight:600;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:pointer;transition:.2s}
+  .auth-box .go:hover{transform:translateY(-1px);box-shadow:0 12px 26px -10px rgba(34,34,63,.5)}
+  .auth-box .go:disabled{opacity:.6;cursor:default;transform:none;box-shadow:none}
+  .auth-msg{font-size:13px;margin-top:16px;line-height:1.5;display:none}
+  .auth-msg.show{display:block}
+  .auth-msg.ok{color:#3a6a4a}
+  .auth-msg.err{color:#c0392b}
+  @media(max-width:860px){.auth-brand{display:none}.auth-form{width:100%}}
+  #app{display:none}
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:256px;flex-shrink:0;border-right:1px solid var(--line);background:var(--paper-2);padding:26px 20px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 26px}
+  .brand .mark{width:38px;height:38px;border-radius:11px;flex-shrink:0;background:var(--accent);display:grid;place-items:center;box-shadow:0 6px 16px -8px rgba(34,34,63,.6)}
+  .brand .mark svg{width:21px;height:21px}
+  .brand .name{line-height:1.05}
+  .brand .name b{font-family:var(--serif);font-weight:500;font-size:17px;letter-spacing:-.01em;display:block}
+  .brand .name span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+  .nav-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);padding:0 12px 10px;margin-top:6px}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav button{display:flex;align-items:center;gap:12px;width:100%;border:none;background:none;cursor:pointer;font-family:var(--sans);font-size:14.5px;font-weight:500;color:var(--ink-soft);padding:10px 12px;border-radius:11px;text-align:left;transition:.18s}
+  .nav button svg{width:18px;height:18px;flex-shrink:0;stroke-width:1.7}
+  .nav button:hover{background:rgba(34,34,63,.05);color:var(--ink)}
+  .nav button.active{background:var(--accent);color:#fff}
+  .side-foot{margin-top:auto;padding-top:20px}
+  .client-chip{display:flex;align-items:center;gap:11px;padding:11px;border-radius:13px;border:1px solid var(--line);background:var(--card)}
+  .avatar{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#2c2c52,#54547f);color:#fff;display:grid;place-items:center;font-weight:600;font-size:13px;flex-shrink:0}
+  .client-chip .meta{flex:1;min-width:0}
+  .client-chip .meta b{font-size:13px;display:block;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .client-chip .meta span{font-size:11.5px;color:var(--ink-faint)}
+  .logout{border:none;background:none;cursor:pointer;color:var(--ink-faint);padding:6px;border-radius:8px;transition:.18s}
+  .logout:hover{color:#c0392b;background:#fdf3f2}
+  .logout svg{width:16px;height:16px;stroke-width:1.8;display:block}
+  .main{flex:1;min-width:0}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:22px 40px;border-bottom:1px solid var(--line);background:rgba(247,246,241,.8);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+  .topbar .crumb{font-size:12.5px;color:var(--ink-faint)}
+  .topbar .crumb b{color:var(--ink-soft);font-weight:600}
+  .content{padding:40px;max-width:1100px;margin:0 auto}
+  .view{display:none;animation:fade .5s ease both}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .stagger>*{opacity:0;animation:rise .6s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:14px}
+  h1.page{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4vw,46px);letter-spacing:-.02em;line-height:1.05}
+  h1.page em{font-style:italic;color:var(--ink-soft)}
+  .lead{color:var(--ink-soft);font-size:15.5px;max-width:560px;margin-top:14px;line-height:1.6}
+  .hero{position:relative;overflow:hidden;border-radius:24px;padding:42px 44px;margin-bottom:28px;background:linear-gradient(135deg,#222240 0%,#2d2d54 60%,#383867 100%);color:#fff;box-shadow:var(--shadow-lg)}
+  .hero .moon{position:absolute;right:-40px;top:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.18),rgba(255,255,255,.02) 60%,transparent);box-shadow:inset -30px -20px 60px rgba(0,0,0,.25)}
+  .hero h2{font-family:var(--serif);font-weight:400;font-size:32px;letter-spacing:-.02em;position:relative}
+  .hero p{color:rgba(255,255,255,.72);margin-top:10px;font-size:14.5px;max-width:470px;position:relative}
+  .hero .row{display:flex;gap:10px;margin-top:24px;position:relative}
+  .btn{font-family:var(--sans);font-weight:600;font-size:13.5px;border-radius:11px;padding:11px 18px;cursor:pointer;border:none;transition:.18s;display:inline-flex;align-items:center;gap:8px}
+  .btn.light{background:#fff;color:var(--accent)}
+  .btn.light:hover{transform:translateY(-1px);box-shadow:0 8px 20px -8px rgba(0,0,0,.4)}
+  .btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .btn.ghost:hover{background:rgba(255,255,255,.16)}
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:1fr 1.4fr}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+  .stat .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);display:flex;align-items:center;gap:8px}
+  .stat .k svg{width:15px;height:15px;color:var(--gold);stroke-width:1.8}
+  .stat .v{font-family:var(--serif);font-size:38px;font-weight:400;margin-top:12px;letter-spacing:-.02em}
+  .stat .sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+  .card h3{font-family:var(--serif);font-weight:500;font-size:18px;letter-spacing:-.01em;margin-bottom:4px}
+  .card .h-sub{font-size:12.5px;color:var(--ink-faint);margin-bottom:18px}
+  .timeline{display:flex;flex-direction:column;gap:2px}
+  .tl-item{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+  .tl-item:last-child{border-bottom:none}
+  .tl-dot{width:9px;height:9px;border-radius:50%;background:var(--gold);margin-top:6px;flex-shrink:0;box-shadow:0 0 0 4px rgba(184,145,84,.12)}
+  .tl-item.muted .tl-dot{background:var(--line);box-shadow:0 0 0 4px var(--line-soft)}
+  .tl-item .t{font-size:14px;font-weight:500}
+  .tl-item .d{font-size:12.5px;color:var(--ink-faint);margin-top:2px}
+  .tl-time{margin-left:auto;font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
+  .mini-svc{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+  .mini-svc:last-child{border-bottom:none}
+  .mini-svc .l{display:flex;align-items:center;gap:12px}
+  .mini-svc .ic{width:32px;height:32px;border-radius:9px;background:var(--paper);display:grid;place-items:center;color:var(--accent);font-size:13px;font-weight:700}
+  .mini-svc .nm{font-size:14px;font-weight:500}
+  .pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
+  .pill.complete{background:rgba(184,145,84,.14);color:#8a6a2f}
+  .pill.active,.pill.review{background:rgba(34,34,63,.08);color:var(--accent)}
+  .empty{color:var(--ink-faint);font-size:13.5px;padding:8px 0}
+  .dl{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+  .dl:last-child{border:none}
+  .dl a{color:var(--accent);font-weight:600;font-size:13px;text-decoration:none}
+  .dl .nm{font-size:14px;font-weight:500}
+  .dl .rev{font-size:11.5px;color:var(--gold);font-weight:600}
+  .svc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:32px}
+  .svc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:28px;box-shadow:var(--shadow);transition:.22s;position:relative;overflow:hidden}
+  .svc:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:#d8d5c9}
+  .svc .num{position:absolute;right:20px;top:14px;font-family:var(--serif);font-size:46px;color:var(--line)}
+  .svc h3{font-family:var(--serif);font-weight:500;font-size:21px;letter-spacing:-.01em;margin-bottom:8px}
+  .svc p{font-size:14px;color:var(--ink-soft);line-height:1.6}
+  .filters{display:flex;gap:8px;margin:30px 0 22px;flex-wrap:wrap}
+  .filters button{font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 16px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer;transition:.18s}
+  .filters button:hover{border-color:var(--ink-faint);color:var(--ink)}
+  .filters button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .work-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .work{border-radius:var(--r);overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);transition:.25s}
+  .work:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .work .thumb{aspect-ratio:4/3;position:relative;display:grid;place-items:center}
+  .work .thumb span{font-family:var(--serif);font-size:34px;color:rgba(255,255,255,.92);z-index:2}
+  .work .thumb::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 20%,rgba(255,255,255,.18),transparent 55%)}
+  .work .body{padding:16px 18px}
+  .work .body .cat{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .work .body .nm{font-family:var(--serif);font-size:17px;font-weight:500;margin-top:5px}
+  .work .body .yr{font-size:12.5px;color:var(--ink-faint);margin-top:3px}
+  .work.hide{display:none}
+  .quote-wrap{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;margin-top:32px;align-items:start}
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:32px;box-shadow:var(--shadow)}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .field{margin-bottom:18px}
+  .field.full{grid-column:1/-1}
+  label{font-size:12.5px;font-weight:600;color:var(--ink);display:block;margin-bottom:7px}
+  label .req{color:var(--gold)}
+  input,select,textarea{width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:var(--paper-2);transition:.18s;outline:none}
+  textarea{resize:vertical;min-height:104px}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(34,34,63,.08)}
+  .err input,.err select,.err textarea{border-color:#c0392b;background:#fdf3f2}
+  .err-msg{display:none;font-size:11.5px;color:#c0392b;margin-top:5px}
+  .err .err-msg{display:block}
+  .submit{width:100%;background:var(--accent);color:#fff;font-family:var(--sans);font-weight:600;font-size:15px;border:none;border-radius:13px;padding:15px;cursor:pointer;transition:.2s;margin-top:6px}
+  .submit:hover{transform:translateY(-1px);box-shadow:0 12px 26px -10px rgba(34,34,63,.5)}
+  .submit:disabled{opacity:.6;cursor:default}
+  .aside-card{background:var(--accent);color:#fff;border-radius:22px;padding:30px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+  .aside-card .moon{position:absolute;right:-30px;bottom:-50px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.16),transparent 62%)}
+  .aside-card h3{font-family:var(--serif);font-weight:400;font-size:24px;position:relative}
+  .aside-card p{color:rgba(255,255,255,.72);font-size:14px;margin-top:12px;line-height:1.6;position:relative}
+  .aside-list{margin-top:22px;display:flex;flex-direction:column;gap:14px;position:relative}
+  .aside-list div{display:flex;gap:11px;align-items:flex-start;font-size:13.5px;color:rgba(255,255,255,.86)}
+  .aside-list svg{width:18px;height:18px;color:var(--gold);flex-shrink:0;margin-top:1px;stroke-width:2}
+  .contact-line{margin-top:24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.14);font-size:13px;color:rgba(255,255,255,.7);position:relative}
+  .contact-line b{color:#fff;font-weight:600;display:block;font-size:14px;margin-top:3px}
+  .success{text-align:center;padding:46px 30px}
+  .success .check{width:70px;height:70px;border-radius:50%;background:rgba(184,145,84,.14);display:grid;place-items:center;margin:0 auto 22px}
+  .success .check svg{width:34px;height:34px;color:var(--gold);stroke-width:2}
+  .success h3{font-family:var(--serif);font-weight:400;font-size:26px}
+  .success p{color:var(--ink-soft);font-size:14.5px;margin-top:10px;line-height:1.6;max-width:340px;margin:10px auto 0}
+  .success button{margin-top:24px;background:none;border:1px solid var(--line);color:var(--ink-soft);font-family:var(--sans);font-weight:600;font-size:13.5px;padding:11px 22px;border-radius:11px;cursor:pointer}
+  .sec-foot{margin-top:46px;padding-top:24px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .splash{position:fixed;inset:0;display:grid;place-items:center;background:var(--paper);z-index:200}
+  .splash .mark{width:54px;height:54px;border-radius:15px;background:var(--accent);display:grid;place-items:center;animation:pulse 1.4s ease-in-out infinite}
+  .splash .mark svg{width:30px;height:30px}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.9);opacity:.6}}
+  @media(max-width:920px){.sidebar{display:none}.content{padding:26px 20px}.topbar{padding:18px 20px}.g3,.svc-grid,.work-grid,.quote-wrap,.g2{grid-template-columns:1fr}.frow{grid-template-columns:1fr}.hero{padding:30px 26px}}
+</style>
+</head>
+<body>
+
+<div class="splash" id="splash"><div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M20.5 14.5A8.5 8.5 0 1 1 11 4a6.5 6.5 0 0 0 9.5 10.5Z" fill="#fff"/></svg></div></div>
+
+<!-- LOGIN -->
+<div class="auth" id="auth" style="display:none">
+  <div class="auth-brand">
+    <div class="moon"></div>
+    <div class="top"><div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M20.5 14.5A8.5 8.5 0 1 1 11 4a6.5 6.5 0 0 0 9.5 10.5Z" fill="#fff"/></svg></div><b>Moon Millennium</b></div>
+    <div class="pitch"><div class="eye">Client Portal</div><h1>Your brand, <em>in motion.</em></h1><p>Sign in to follow your projects, review deliverables, and request new work — all in one place built around your brand.</p></div>
+    <div class="foot">© 2026 Moon Millennium · A branding studio</div>
+  </div>
+  <div class="auth-form">
+    <div class="auth-box">
+      <h2>Welcome back</h2>
+      <p class="sub">Enter your email and we'll send you a secure sign-in link.</p>
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="you@yourbrand.com" autocomplete="email">
+      <button class="go" id="loginBtn" onclick="sendLink()">Send sign-in link →</button>
+      <div class="auth-msg" id="authMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M20.5 14.5A8.5 8.5 0 1 1 11 4a6.5 6.5 0 0 0 9.5 10.5Z" fill="#fff"/></svg></div><div class="name"><b>Moon Millennium</b><span>Client Portal</span></div></div>
+    <div class="nav-label">Workspace</div>
+    <nav class="nav">
+      <button data-view="overview" class="active" onclick="go('overview')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z" stroke-linejoin="round"/></svg>Overview</button>
+      <button data-view="services" onclick="go('services')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6Z" stroke-linejoin="round"/></svg>Services</button>
+      <button data-view="portfolio" onclick="go('portfolio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="m3 14 4-4 5 5 3-3 6 6"/></svg>Portfolio</button>
+      <button data-view="quote" onclick="go('quote')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 8h10M7 12h7M5 20l1.5-3A8 8 0 1 1 12 20Z" stroke-linejoin="round"/></svg>Request a Quote</button>
+    </nav>
+    <div class="side-foot"><div class="client-chip"><div class="avatar" id="sideAvatar">··</div><div class="meta"><b id="sideName">—</b><span id="sideCompany">Client</span></div><button class="logout" title="Sign out" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg></button></div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="crumb">Portal / <b id="crumb">Overview</b></div></header>
+    <div class="content">
+      <section class="view active" id="overview"></section>
+      <section class="view" id="services">
+        <div class="eyebrow">What we do</div>
+        <h1 class="page">Services built to make brands <em>unmissable.</em></h1>
+        <p class="lead">From first idea to shelf-ready execution — Moon Millennium handles the whole arc of building a brand that people remember.</p>
+        <div class="svc-grid stagger">
+          <div class="svc"><div class="num">01</div><h3>Brand Strategy</h3><p>Positioning, audience, and the story that gives your brand a reason to exist.</p></div>
+          <div class="svc"><div class="num">02</div><h3>Identity &amp; Logo</h3><p>Logo systems, typography, and color built to flex across every touchpoint.</p></div>
+          <div class="svc"><div class="num">03</div><h3>Packaging &amp; Print</h3><p>Shelf-ready packaging and collateral with production-grade dielines.</p></div>
+          <div class="svc"><div class="num">04</div><h3>Digital &amp; Web</h3><p>Landing pages and storefronts where your brand meets its audience.</p></div>
+          <div class="svc"><div class="num">05</div><h3>Social &amp; Content</h3><p>Templates and campaign creative that keep your feed consistent.</p></div>
+          <div class="svc"><div class="num">06</div><h3>Brand Guidelines</h3><p>A living rulebook so every partner stays perfectly on-brand.</p></div>
+        </div>
+        <div class="sec-foot"><span>Not sure where to start?</span><a href="#" onclick="go('quote');return false;" style="color:var(--accent);font-weight:600;text-decoration:none">Request a quote →</a></div>
+      </section>
+      <section class="view" id="portfolio">
+        <div class="eyebrow">Selected work</div>
+        <h1 class="page">Brands we've helped <em>daze.</em></h1>
+        <p class="lead">A look at recent projects across identity, packaging, digital, and campaigns.</p>
+        <div class="filters">
+          <button class="active" onclick="filt(this,'all')">All</button>
+          <button onclick="filt(this,'identity')">Identity</button>
+          <button onclick="filt(this,'packaging')">Packaging</button>
+          <button onclick="filt(this,'digital')">Digital</button>
+          <button onclick="filt(this,'campaign')">Campaign</button>
+        </div>
+        <div class="work-grid stagger" id="workGrid"></div>
+      </section>
+      <section class="view" id="quote">
+        <div class="eyebrow">Let's build</div>
+        <h1 class="page">Request a <em>quote.</em></h1>
+        <p class="lead">Tell us about your brand and what you need. We'll come back within two business days with a scope and an estimate.</p>
+        <div class="quote-wrap" id="quoteWrap">
+          <div class="form-card" id="formCard">
+            <div class="frow">
+              <div class="field"><label>Full name <span class="req">*</span></label><input id="q_name" type="text" placeholder="Your name"><div class="err-msg">Please enter your name</div></div>
+              <div class="field"><label>Email <span class="req">*</span></label><input id="q_email" type="email" placeholder="you@company.com"><div class="err-msg">Enter a valid email</div></div>
+            </div>
+            <div class="frow">
+              <div class="field"><label>Company / brand</label><input id="q_company" type="text" placeholder="Brand name"></div>
+              <div class="field"><label>Service needed <span class="req">*</span></label><select id="q_service"><option value="">Select a service…</option><option>Brand Strategy</option><option>Identity &amp; Logo</option><option>Packaging &amp; Print</option><option>Digital &amp; Web</option><option>Social &amp; Content</option><option>Brand Guidelines</option><option>Full brand build</option></select><div class="err-msg">Please choose a service</div></div>
+            </div>
+            <div class="frow">
+              <div class="field"><label>Budget range</label><select id="q_budget"><option value="">Optional</option><option>Under ₹50,000</option><option>₹50,000 – ₹1.5L</option><option>₹1.5L – ₹4L</option><option>₹4L+</option></select></div>
+              <div class="field"><label>Timeline</label><select id="q_timeline"><option value="">Optional</option><option>ASAP</option><option>2–4 weeks</option><option>1–2 months</option><option>Flexible</option></select></div>
+            </div>
+            <div class="field full"><label>Project details <span class="req">*</span></label><textarea id="q_msg" placeholder="What are you building, and what does success look like?"></textarea><div class="err-msg">Tell us a bit about the project</div></div>
+            <button class="submit" id="quoteBtn" onclick="submitQuote()">Send request →</button>
+          </div>
+          <div class="aside-card">
+            <div class="moon"></div>
+            <h3>What happens next</h3>
+            <p>A simple, founder-friendly process — no jargon, no surprises.</p>
+            <div class="aside-list">
+              <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg><span>We review your brief and reply within 2 business days</span></div>
+              <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg><span>A short discovery call to align on goals &amp; scope</span></div>
+              <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg><span>A clear proposal with timeline, deliverables &amp; pricing</span></div>
+            </div>
+            <div class="contact-line">Prefer to talk first?<b>hello@moonmillennium.in</b></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let CLIENT=null; // {id, company, contact_name, initials}
+
+  // ---------- boot ----------
+  (async function(){
+    const { data:{ session } } = await db.auth.getSession();
+    if(session){ await enterApp(); } else { showLogin(); }
+  })();
+  db.auth.onAuthStateChange((_e,session)=>{ if(!session){ showLogin(); }});
+
+  function showLogin(){
+    document.getElementById('splash').style.display='none';
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth').style.display='flex';
+  }
+
+  // ---------- magic link login ----------
+  async function sendLink(){
+    const email=document.getElementById('loginEmail').value.trim();
+    const msg=document.getElementById('authMsg'); const btn=document.getElementById('loginBtn');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.className='auth-msg err show'; msg.textContent='Please enter a valid email address.'; return; }
+    btn.disabled=true; btn.textContent='Sending…';
+    const { error } = await db.auth.signInWithOtp({ email, options:{ emailRedirectTo: window.location.href } });
+    if(error){ msg.className='auth-msg err show'; msg.textContent=error.message; btn.disabled=false; btn.textContent='Send sign-in link →'; }
+    else { msg.className='auth-msg ok show'; msg.textContent='Check your inbox — we sent a sign-in link to '+email+'.'; btn.textContent='Link sent'; }
+  }
+
+  async function logout(){ await db.auth.signOut(); showLogin(); }
+
+  // ---------- enter app: load this client's data ----------
+  async function enterApp(){
+    const cid = await db.rpc('my_client_id').then(r=>r.data).catch(()=>null);
+    if(!cid){
+      // signed in, but not linked to a client yet
+      document.getElementById('splash').innerHTML='<div style="text-align:center;max-width:360px;padding:30px"><div class="mark" style="margin:0 auto 20px;animation:none"><svg viewBox="0 0 24 24" fill="none"><path d="M20.5 14.5A8.5 8.5 0 1 1 11 4a6.5 6.5 0 0 0 9.5 10.5Z" fill="#fff"/></svg></div><h2 style="font-family:var(--serif);font-weight:400;font-size:24px">Almost there</h2><p style="color:var(--ink-soft);font-size:14px;margin-top:10px;line-height:1.6">Your account isn\'t linked to a brand yet. Moon Millennium will set this up shortly. <a href="#" onclick="logout();return false;" style="color:var(--accent);font-weight:600">Sign out</a></p></div>';
+      return;
+    }
+    const { data:client } = await db.from('clients').select('*').eq('id',cid).single();
+    CLIENT=client;
+    document.getElementById('auth').style.display='none';
+    document.getElementById('splash').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('sideAvatar').textContent=(client.initials||client.company.slice(0,2)).toUpperCase();
+    document.getElementById('sideName').textContent=client.contact_name||client.company;
+    document.getElementById('sideCompany').textContent=client.company+' · Client';
+    await Promise.all([renderOverview(), renderPortfolio()]);
+  }
+
+  // ---------- overview ----------
+  async function renderOverview(){
+    const [{data:projects=[]},{data:dels=[]},{data:acts=[]}] = await Promise.all([
+      db.from('projects').select('*').order('updated_at',{ascending:false}),
+      db.from('deliverables').select('*').order('created_at',{ascending:false}),
+      db.from('activity').select('*').order('created_at',{ascending:false}).limit(6)
+    ]);
+    const active = projects.filter(p=>p.status==='active'||p.status==='review').length;
+    const awaiting = dels.filter(d=>d.awaiting_review).length;
+    const today=new Date().toISOString().slice(0,10);
+    const upcoming = projects.map(p=>p.next_review).filter(d=>d&&d>=today).sort();
+    const nextReview = upcoming[0] ? new Date(upcoming[0]).toLocaleDateString('en-IN',{month:'short',day:'numeric'}) : '—';
+    const h=new Date().getHours(); const part=h<12?'morning':h<17?'afternoon':'evening';
+    const first=(CLIENT.contact_name||CLIENT.company).split(' ')[0];
+    const intro = active>0 ? `${active} project${active>1?'s':''} in motion${awaiting>0?` and ${awaiting} deliverable${awaiting>1?'s':''} waiting on you`:''}.` : 'Welcome to your Moon Millennium workspace.';
+
+    const svcIcon=n=>(n||'?').trim().slice(0,2).toUpperCase();
+    const statusLabel={active:'In progress',review:'In review',complete:'Complete'};
+
+    const projHtml = projects.length ? projects.map(p=>`
+      <div class="mini-svc"><div class="l"><div class="ic">${svcIcon(p.service||p.name)}</div><div class="nm">${esc(p.name)}</div></div>
+      <span class="pill ${p.status}">${statusLabel[p.status]||p.status}</span></div>`).join('')
+      : '<div class="empty">No active projects yet.</div>';
+
+    const actHtml = acts.length ? acts.map((a,i)=>`
+      <div class="tl-item ${i<2?'':'muted'}"><div class="tl-dot"></div><div><div class="t">${esc(a.title)}</div><div class="d">${esc(a.detail||'')}</div></div>
+      <div class="tl-time">${rel(a.created_at)}</div></div>`).join('')
+      : '<div class="empty">No activity yet.</div>';
+
+    const dlReady = dels.filter(d=>d.awaiting_review);
+    const dlHtml = dlReady.length ? dlReady.slice(0,4).map(d=>`
+      <div class="dl"><div><div class="nm">${esc(d.title)}</div><div class="rev">Awaiting your review</div></div>
+      ${d.file_url?`<a href="${esc(d.file_url)}" target="_blank" rel="noopener">Open →</a>`:''}</div>`).join('') : '';
+
+    document.getElementById('overview').innerHTML=`
+      <div class="hero stagger"><div class="moon"></div>
+        <h2>Good ${part}, ${esc(first)}</h2><p>${esc(intro)}</p>
+        <div class="row"><button class="btn light" onclick="go('quote')">Start a new project →</button><button class="btn ghost" onclick="go('portfolio')">View past work</button></div>
+      </div>
+      <div class="grid g3 stagger" style="margin-bottom:18px">
+        <div class="stat"><div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16v16H4z"/><path d="M4 10h16"/></svg>Active projects</div><div class="v">${active}</div><div class="sub">${projects.filter(p=>p.status==='active'||p.status==='review').map(p=>p.service||p.name).slice(0,2).join(' · ')||'—'}</div></div>
+        <div class="stat"><div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>Deliverables ready</div><div class="v">${dels.length}</div><div class="sub">${awaiting} awaiting your review</div></div>
+        <div class="stat"><div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Next review</div><div class="v">${nextReview}</div><div class="sub">${upcoming.length?'Scheduled':'Nothing scheduled'}</div></div>
+      </div>
+      <div class="grid g2 stagger">
+        <div class="card"><h3>Recent activity</h3><div class="h-sub">Latest movement across your projects</div><div class="timeline">${actHtml}</div>${dlHtml?`<div style="margin-top:18px"><h3 style="font-size:16px">Ready for review</h3><div class="h-sub">Deliverables awaiting your sign-off</div>${dlHtml}</div>`:''}</div>
+        <div class="card"><h3>Your engagements</h3><div class="h-sub">Projects with Moon Millennium</div>${projHtml}
+          <div style="margin-top:18px"><button class="btn" style="background:var(--paper);color:var(--accent);border:1px solid var(--line);width:100%;justify-content:center" onclick="go('services')">Explore all services</button></div></div>
+      </div>`;
+  }
+
+  // ---------- portfolio ----------
+  const GRAD={identity:'linear-gradient(135deg,#2a2a4d,#4a4a7a)',packaging:'linear-gradient(135deg,#2f4a3a,#4f7a5e)',digital:'linear-gradient(135deg,#1f3a52,#3a6a8f)',campaign:'linear-gradient(135deg,#5a3520,#a8682f)'};
+  async function renderPortfolio(){
+    const { data:works=[] } = await db.from('portfolio').select('*').order('sort',{ascending:true});
+    document.getElementById('workGrid').innerHTML = works.length ? works.map(w=>`
+      <div class="work" data-cat="${esc(w.category)}"><div class="thumb" style="background:${GRAD[w.category]||GRAD.identity}"><span>${esc(w.label||w.name)}</span></div>
+      <div class="body"><div class="cat">${esc(w.category)}</div><div class="nm">${esc(w.name)}</div><div class="yr">${esc(w.year_text||'')}</div></div></div>`).join('')
+      : '<div class="empty">Work samples coming soon.</div>';
+  }
+  function filt(btn,cat){
+    document.querySelectorAll('.filters button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.work').forEach(w=>w.classList.toggle('hide',!(cat==='all'||w.dataset.cat===cat)));
+  }
+
+  // ---------- quote ----------
+  async function submitQuote(){
+    const checks=[['q_name',v=>v.trim().length>0],['q_email',v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())],['q_service',v=>v!==''],['q_msg',v=>v.trim().length>3]];
+    let ok=true;
+    checks.forEach(([id,test])=>{const el=document.getElementById(id);const f=el.closest('.field');if(!test(el.value)){f.classList.add('err');ok=false;}else f.classList.remove('err');});
+    if(!ok)return;
+    const btn=document.getElementById('quoteBtn'); btn.disabled=true; btn.textContent='Sending…';
+    const payload={client_id:CLIENT?CLIENT.id:null,name:val('q_name'),email:val('q_email'),company:val('q_company'),service:val('q_service'),budget:val('q_budget'),timeline:val('q_timeline'),message:val('q_msg')};
+    const { error } = await db.from('quotes').insert(payload);
+    btn.disabled=false; btn.textContent='Send request →';
+    if(error){ alert('Something went wrong: '+error.message); return; }
+    const name=val('q_name').split(' ')[0];
+    document.getElementById('quoteWrap').style.display='none';
+    document.getElementById('quote').insertAdjacentHTML('beforeend',`
+      <div class="form-card success" id="successCard" style="max-width:520px;margin:32px auto 0">
+        <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>Thanks, ${esc(name)||'there'}.</h3>
+        <p>Your request has reached Moon Millennium. We'll review it and get back to you within two business days.</p>
+        <button onclick="resetQuote()">Send another request</button></div>`);
+  }
+  function resetQuote(){
+    const s=document.getElementById('successCard'); if(s)s.remove();
+    ['q_name','q_email','q_company','q_service','q_budget','q_timeline','q_msg'].forEach(id=>document.getElementById(id).value='');
+    document.querySelectorAll('#quoteWrap .field').forEach(f=>f.classList.remove('err'));
+    document.getElementById('quoteWrap').style.display='grid';
+  }
+
+  // ---------- nav + utils ----------
+  const titles={overview:'Overview',services:'Services',portfolio:'Portfolio',quote:'Request a Quote'};
+  function go(view){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(view).classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+    document.getElementById('crumb').textContent=titles[view];
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function val(id){return document.getElementById(id).value.trim();}
+  function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  function rel(ts){const d=new Date(ts),now=new Date(),days=Math.floor((now-d)/86400000);if(days<=0)return 'Today';if(days===1)return 'Yesterday';if(days<7)return days+'d ago';return d.toLocaleDateString('en-IN',{month:'short',day:'numeric'});}
+</script>
+</body>
+</html>
