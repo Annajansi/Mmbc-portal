@@ -6,3 +6,6 @@
 // ============================================================
 const SUPABASE_URL  = "https://xeskqkebkjdkmqndjfcg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlc2txa2Via2pka21xbmRqZmNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NDY3MDcsImV4cCI6MjA5NjIyMjcwN30.Um2fCw9KU-uZrtdJfG7tFk3Ef8u-Rkx3QqpSE18R1a0";
+git add .
+git commit -m "Configure Supabase"
+git push
